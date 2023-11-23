@@ -28,7 +28,6 @@ import org.jdom2.output.support.AbstractXMLOutputProcessor;
 import org.jdom2.output.support.FormatStack;
 import org.jdom2.util.NamespaceStack;
 
-import com.braintribe.common.lcd.uncheckedcounterpartexceptions.UncheckedIOException;
 import com.braintribe.utils.CollectionTools;
 import com.braintribe.utils.CommonTools;
 import com.braintribe.utils.DOMTools;
@@ -36,21 +35,18 @@ import com.braintribe.utils.FileTools;
 import com.braintribe.utils.StringTools;
 
 /**
- * Formats XMLs using JDom2. The class provides multiple <code>format</code> methods to conveniently format XML strings
- * or files with specific options. Furthermore there are also several <code>prettyFormat</code> methods where one
- * doesn't have to specify any options.
+ * Formats XMLs using JDom2. The class provides multiple <code>format</code> methods to conveniently format XML strings or files with specific
+ * options. Furthermore there are also several <code>prettyFormat</code> methods where one doesn't have to specify any options.
  * <p>
- * When NOT to use this class: if you just want to format an XML string without any special requirements with respect to
- * formatter settings, there is no need for an additional dependency. Instead you can e.g. just use
- * {@link DOMTools#format(String)}. Performance will probably be better too.<br>
- * When to use this class: if you have special requirements such as preserving attribute order or blank lines, this
- * class provides more {@link FormattingOptions options} than most other XML libraries. This especially can be useful
- * when formatting configuration files which have to be human-readable and -comparable.
+ * When NOT to use this class: if you just want to format an XML string without any special requirements with respect to formatter settings, there is
+ * no need for an additional dependency. Instead you can e.g. just use {@link DOMTools#format(String)}. Performance will probably be better too.<br>
+ * When to use this class: if you have special requirements such as preserving attribute order or blank lines, this class provides more
+ * {@link FormattingOptions options} than most other XML libraries. This especially can be useful when formatting configuration files which have to be
+ * human-readable and -comparable.
  * <p>
- * The implementation is based on JDom2, but also adds some additional tweaks which are not available in JDom2, e.g. to
- * have better control for XML declarations, to make adding a space before closing empty elements optional or to (by
- * default) re-use the line separator from the XML string/file. Due to these tweaks, formating is probably slower than
- * with most other libraries.
+ * The implementation is based on JDom2, but also adds some additional tweaks which are not available in JDom2, e.g. to have better control for XML
+ * declarations, to make adding a space before closing empty elements optional or to (by default) re-use the line separator from the XML string/file.
+ * Due to these tweaks, formating is probably slower than with most other libraries.
  *
  * @author michael.lafite
  *
@@ -74,8 +70,8 @@ public class JDomFormatter {
 	}
 
 	/**
-	 * This method works like {@link #format(File, String, FormattingOptions)} with {@link FormattingOptions} that
-	 * create a {@link FormattingOptions#getPrettyFormattingOptions(String) pretty formatted} XML.
+	 * This method works like {@link #format(File, String, FormattingOptions)} with {@link FormattingOptions} that create a
+	 * {@link FormattingOptions#getPrettyFormattingOptions(String) pretty formatted} XML.
 	 *
 	 * @see #prettyFormat(String)
 	 */
@@ -111,30 +107,25 @@ public class JDomFormatter {
 	 * @param xmlFile
 	 *            the file to format.
 	 * @param readEncoding
-	 *            the encoding used to read from the file. If not specified, the methods tries to determine the encoding
-	 *            from the XML declaration. Otherwise the {@link FormattingOptions#DEFAULT_ENCODING default encoding} is
-	 *            used. Note that the encoding used for writing the file is specified via
-	 *            {@link FormattingOptions#setEncoding(String)}. Therefore one can use this method to change the
-	 *            encoding of file.
+	 *            the encoding used to read from the file. If not specified, the methods tries to determine the encoding from the XML declaration.
+	 *            Otherwise the {@link FormattingOptions#DEFAULT_ENCODING default encoding} is used. Note that the encoding used for writing the file
+	 *            is specified via {@link FormattingOptions#setEncoding(String)}. Therefore one can use this method to change the encoding of file.
 	 * @param formattingOptions
 	 *            the formatting options.
 	 * @throws IllegalArgumentException
 	 *             if the XML string or the formatting options are invalid.
-	 * @throws UncheckedIOException
-	 *             if any IO error occurs.
 	 */
 	public static void format(File xmlFile, String readEncoding, FormattingOptions formattingOptions)
-			throws IllegalArgumentException, UncheckedIOException {
-		String xmlString = FileTools.readStringFromFile(xmlFile, getReadEncoding(xmlFile, readEncoding));
+			throws IllegalArgumentException {
+		String xmlString = FileTools.read(xmlFile).withCharset(getReadEncoding(xmlFile, readEncoding)).asString();
 		String formattedXmlString = format(xmlString, formattingOptions);
 		FileTools.writeStringToFile(xmlFile, formattedXmlString, formattingOptions.getEncoding());
 	}
 
 	/**
-	 * Gets the read-encoding for the specified <code>xmlFile</code>. If <code>specifiedEncoding</code> is not
-	 * <code>null</code>, it will be returned. Otherwise the method tries to read the encoding from the XML declaration.
-	 * If there is none or if it doesn't have an <code>encoding</code> attribute, the
-	 * {@link FormattingOptions#DEFAULT_ENCODING default encoding} is returned.
+	 * Gets the read-encoding for the specified <code>xmlFile</code>. If <code>specifiedEncoding</code> is not <code>null</code>, it will be returned.
+	 * Otherwise the method tries to read the encoding from the XML declaration. If there is none or if it doesn't have an <code>encoding</code>
+	 * attribute, the {@link FormattingOptions#DEFAULT_ENCODING default encoding} is returned.
 	 */
 	private static String getReadEncoding(File xmlFile, String specifiedEncoding) {
 		String result = specifiedEncoding;
@@ -165,8 +156,8 @@ public class JDomFormatter {
 	}
 
 	/**
-	 * Formats the passed <code>xmlString</code>. Unless special {@link Format} options are required, it is recommended
-	 * to use the more convenient method {@link #format(String, FormattingOptions)}.
+	 * Formats the passed <code>xmlString</code>. Unless special {@link Format} options are required, it is recommended to use the more convenient
+	 * method {@link #format(String, FormattingOptions)}.
 	 *
 	 * @param xmlString
 	 *            the (XML) string to format. Must be well-formed!
@@ -176,8 +167,8 @@ public class JDomFormatter {
 	 *            additional options not supported by JDOM {@link Format}.
 	 * @return the formatted string.
 	 * @throws IllegalArgumentException
-	 *             if the <code>xmlString</code> is invalid or any option (combination) is invalid (e.g.
-	 *             <code>version</code> set <code>null</code> although XML declaration is not omitted).
+	 *             if the <code>xmlString</code> is invalid or any option (combination) is invalid (e.g. <code>version</code> set <code>null</code>
+	 *             although XML declaration is not omitted).
 	 */
 	private static String format(String xmlString, Format format, AdditionalJDomFormattingOptions additionalJDomFormattingOptions)
 			throws IllegalArgumentException {
@@ -188,11 +179,10 @@ public class JDomFormatter {
 		String xmlStringToFormat = xmlString;
 
 		if (preservedBlankLines != 0) {
-			/* The strategy to preserve blank lines is to add empty elements (blank line markers), which will later be
-			 * removed again. Before we do this, we first format the string using raw format. This preserves almost all
-			 * white space, but removes blank lines outside the root element and also removes line breaks from attribute
-			 * values. In both cases we'd otherwise add our blank line markers at locations where they are not
-			 * permitted. */
+			/* The strategy to preserve blank lines is to add empty elements (blank line markers), which will later be removed again. Before we do
+			 * this, we first format the string using raw format. This preserves almost all white space, but removes blank lines outside the root
+			 * element and also removes line breaks from attribute values. In both cases we'd otherwise add our blank line markers at locations where
+			 * they are not permitted. */
 			xmlStringToFormat = format(xmlStringToFormat, Format.getRawFormat(),
 					additionalJDomFormattingOptions.isAddSpaceBeforeClosingEmptyElements());
 
@@ -200,7 +190,7 @@ public class JDomFormatter {
 			xmlStringToFormat = StringTools.normalizeLineSeparators(xmlStringToFormat, lineSeparator);
 
 			// replace blank lines with blank line marker
-			xmlStringToFormat = StringTools.replaceLinesWith(xmlStringToFormat, lineSeparator, "\\s*", BLANKLINE_MARKER);
+			xmlStringToFormat = replaceLinesWith(xmlStringToFormat, lineSeparator, "\\s*", BLANKLINE_MARKER);
 
 			if (preservedBlankLines != -1) {
 				// --> limit maximum number of consecutive blank line markers
@@ -236,8 +226,32 @@ public class JDomFormatter {
 		String result = formattedXmlStringWithCorrectDeclaration;
 		if (preservedBlankLines != 0) {
 			// replace blank line markers with empty lines
-			result = StringTools.replaceLinesWith(formattedXmlStringWithCorrectDeclaration, lineSeparator, "^\\s*" + BLANKLINE_MARKER_REGEX, "");
+			result = replaceLinesWith(formattedXmlStringWithCorrectDeclaration, lineSeparator, "^\\s*" + BLANKLINE_MARKER_REGEX, "");
 		}
+
+		return result;
+	}
+
+	private static String replaceLinesWith(String string, String lineSeparator, String lineRegex, String lineReplacement) {
+		if (lineSeparator == null)
+			// single line string
+			return string.matches(lineRegex) ? lineReplacement : string;
+
+		// multi line string
+		String[] lines = string.split(lineSeparator);
+
+		StringBuilder sb = new StringBuilder();
+
+		for (String line : lines) {
+			String lineInResult = line.matches(lineRegex) ? lineReplacement : line;
+			sb.append(lineInResult + lineSeparator);
+		}
+
+		String result = sb.toString();
+
+		// if original string didn't end with line separator, remove it
+		if (!string.endsWith(lineSeparator))
+			result = StringTools.removeSuffix(result, lineSeparator);
 
 		return result;
 	}
@@ -246,8 +260,7 @@ public class JDomFormatter {
 	 * Formats the passed <code>xmlString</code> using JDom2 and the specified <code>format</code> settings.
 	 *
 	 * @param addSpaceBeforeClosingEmptyElements
-	 *            whether or not to add a space before closing empty elements (i.e. without any child elements, only
-	 *            attributes)
+	 *            whether or not to add a space before closing empty elements (i.e. without any child elements, only attributes)
 	 * @throws IllegalArgumentException
 	 *             if the <code>xmlString</code> is invalid.
 	 */
@@ -270,8 +283,8 @@ public class JDomFormatter {
 	}
 
 	/**
-	 * Creates a JDom {@link Format} instance for the passed <code>options</code>. Note that the
-	 * {@link AdditionalJDomFormattingOptions} are ignored, since they are not supported by <code>Format</code>.
+	 * Creates a JDom {@link Format} instance for the passed <code>options</code>. Note that the {@link AdditionalJDomFormattingOptions} are ignored,
+	 * since they are not supported by <code>Format</code>.
 	 */
 	private static Format createFormat(FormattingOptions options) {
 		Format format = Format.getRawFormat();
@@ -332,9 +345,9 @@ public class JDomFormatter {
 		}
 
 		/**
-		 * Unless {@link Format#setTextMode(TextMode) whitespace is preserved}, blank (i.e. whitespace-only) lines will
-		 * be removed during the formatting process. This settings controls how many (consecutive) blank lines shall be
-		 * preserved. (They will be replaced with empty lines.) Default: {@value #DEFAULT_PRESERVEDBLANKLINES}.
+		 * Unless {@link Format#setTextMode(TextMode) whitespace is preserved}, blank (i.e. whitespace-only) lines will be removed during the
+		 * formatting process. This settings controls how many (consecutive) blank lines shall be preserved. (They will be replaced with empty lines.)
+		 * Default: {@value #DEFAULT_PRESERVEDBLANKLINES}.
 		 */
 		public AdditionalJDomFormattingOptions setPreservedBlankLines(int preservedBlankLines) {
 			if (preservedBlankLines < -1) {
@@ -357,8 +370,8 @@ public class JDomFormatter {
 	}
 
 	/**
-	 * Convenience class which extends {@link AdditionalJDomFormattingOptions} and also wraps most JDom {@link Format}
-	 * options and also adds some convenience. This is the preferred way to set {@link JDomFormatter} options.
+	 * Convenience class which extends {@link AdditionalJDomFormattingOptions} and also wraps most JDom {@link Format} options and also adds some
+	 * convenience. This is the preferred way to set {@link JDomFormatter} options.
 	 *
 	 * @author michael.lafite
 	 *
@@ -388,12 +401,10 @@ public class JDomFormatter {
 		}
 
 		/**
-		 * Creates a new instance based on the passed <code>xmlString</code>. If the <code>xmlString</code> doesn't
-		 * start with an XML declaration, {@link #setOmitDeclaration(Boolean) omitDeclaration} will be set to
-		 * <code>true</code>. Otherwise {@link #setVersion(String) version}, {@link #setEncoding(String) encoding} and
-		 * {@link #setStandalone(Boolean) standAlone} will be parsed from the declaration. Furthermore the
-		 * {@link #setLineSeparator(String) line separator} is set to the (first) line separator used in the
-		 * <code>xmlString</code>.
+		 * Creates a new instance based on the passed <code>xmlString</code>. If the <code>xmlString</code> doesn't start with an XML declaration,
+		 * {@link #setOmitDeclaration(Boolean) omitDeclaration} will be set to <code>true</code>. Otherwise {@link #setVersion(String) version},
+		 * {@link #setEncoding(String) encoding} and {@link #setStandalone(Boolean) standAlone} will be parsed from the declaration. Furthermore the
+		 * {@link #setLineSeparator(String) line separator} is set to the (first) line separator used in the <code>xmlString</code>.
 		 */
 		public FormattingOptions(String xmlString) {
 			String declaration = DOMTools.getDeclaration(xmlString);
@@ -421,8 +432,8 @@ public class JDomFormatter {
 		}
 
 		/**
-		 * Returns {@link #getPrettyFormattingOptions() pretty formatting options}. XML declaration settings will be
-		 * based on the passed <code>xmlString</code> (see {@link #FormattingOptions(String)}.
+		 * Returns {@link #getPrettyFormattingOptions() pretty formatting options}. XML declaration settings will be based on the passed
+		 * <code>xmlString</code> (see {@link #FormattingOptions(String)}.
 		 *
 		 * @see #getPrettyFormattingOptions()
 		 */
@@ -441,8 +452,8 @@ public class JDomFormatter {
 		}
 
 		/**
-		 * Returns formatting options to create a pretty-formatted XML string. This means that whitespace will be
-		 * trimmed, elements will be indented, blank lines will be preserved (but only 2).
+		 * Returns formatting options to create a pretty-formatted XML string. This means that whitespace will be trimmed, elements will be indented,
+		 * blank lines will be preserved (but only 2).
 		 *
 		 * @see #getPrettyFormattingOptions(String)
 		 */
@@ -555,8 +566,8 @@ public class JDomFormatter {
 	}
 
 	/**
-	 * Very simple {@link AbstractXMLOutputProcessor} extension whose single purpose is to omit the space before closing
-	 * empty elements, i.e. &lt;example/&gt; instead of &lt;example /&gt;.
+	 * Very simple {@link AbstractXMLOutputProcessor} extension whose single purpose is to omit the space before closing empty elements, i.e.
+	 * &lt;example/&gt; instead of &lt;example /&gt;.
 	 *
 	 * @author michael.lafite
 	 */
